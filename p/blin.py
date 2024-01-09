@@ -1,4 +1,6 @@
 import telebot
+import random
+import info
 
 # Создаём бота
 API_TOKEN = '6540054720:AAEie0nYSXq442bG8df_a1N4If4Xh72YxMQ'
@@ -23,13 +25,17 @@ def game(message):
     # Если нет -- просим прислать свой возраст
     if user_id not in user_data:
         bot.send_message(message.chat.id, "Пожалуйста, пришли сначала свой возраст.")
-    elif user_data[user_id] < 13:
-        bot.send_message(message.chat.id, "Minecraft")
-    elif 13 <= user_data[user_id] < 18:
-        bot.send_message(message.chat.id, "Baba Is You")
+    elif user_data[user_id]["age"] < 13:
+        bot.send_message(message.chat.id, random.choice(info.younger_than_13))
+    elif 13 <= user_data[user_id]["age"] < 18:
+        bot.send_message(message.chat.id, random.choice(info.younger_than_18))
     else:
-        bot.send_message(message.chat.id, "The Stanley Parable")
+        bot.send_message(message.chat.id, random.choice(info.older_than_18))
 
+@bot.message_handler(commands=['hello'])
+def hello(message):
+    username = message.from_user.first_name
+    bot.send_message(message.chat.id, text=f"Привет, {username}!")
 # Запоминаем присланный возраст
 @bot.message_handler()
 def save_age(message):
@@ -41,6 +47,7 @@ def save_age(message):
         # Запоминаем присланный возраст в локальную переменную `age`
         age = int(message.text)
         # Сохраняем возраст пользователя в словарь по `user_id`
+        user_data[user_id] = {}
         user_data[user_id]['age'] = age
         # Сохраняем имя пользователя в словарь по `user_id`
         user_data[user_id]['name'] = message.from_user.first_name
